@@ -1,9 +1,18 @@
 // server.js
 
+var fs = require('fs');
+var http = require('http');
+var https = require('https');
+
+// Support for HTTPS, uncomment to enable
+/*
+var privateKey = fs.readFileSync('sslcert/server.key');
+var certificate = fs.readFileSyng('sslcert/server.crt');
+var credentials = {key: privateKey, cert: certificate};
+*/
 
 var express  = require('express');
 var app      = express();
-
 var passport = require('passport');
 var flash    = require('connect-flash');
 
@@ -33,5 +42,15 @@ app.configure(function() {
 require('./app/routes.js')(app, passport); // load our routes and pass in our app and fully configured passport
 
 // launch ======================================================================
-app.listen(config.listen);
+
+var httpServer = http.createServer(app);
+httpServer.listen(config.listen);
 console.log('vsaa-webpanel running on port ' + config.listen);
+
+// Support for HTTPS, uncomment to enable
+/*
+var httpsserver = https.createServer(credentials,app);
+httpsServer.listen(config.listenSSL);
+console.log('vsaa-webpanel with SSL running on port ' + config.listenSSL);
+*/
+

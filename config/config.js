@@ -4,6 +4,7 @@ module.exports = {
 	
 	// Default port to listen
 	listen : 8888,
+	listenSSL : 8443,
 		
 	// Database driver
 	db_driver : "mysql",
