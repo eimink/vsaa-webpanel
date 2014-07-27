@@ -66,15 +66,6 @@ module.exports = function(app, passport) {
 			});
 		});		
 	});
-	
-	app.get('/colleges',isLoggedIn, function(req, res) {
-		app.connection.query('SELECT * FROM `colleges` WHERE 1 LIMIT 10',function(err,rows){
-			res.render('colleges.ejs', {colleges: rows});
-		});
-		
-		
-		
-	});
 
 	// =====================================
 	// LOGOUT ==============================
