@@ -1,4 +1,5 @@
 // app/routes.js
+var bcrypt = require('bcrypt-nodejs');
 module.exports = function(app, passport) {
 
 	// =====================================
@@ -73,15 +74,50 @@ module.exports = function(app, passport) {
 	// we will want this protected so you have to be logged in to visit
 	// we will use route middleware to verify this (the isLoggedIn function)
 	app.get('/app/:id', isLoggedIn, function(req, res) {
+		if (req.params.id == 'create')
+		{
+			res.render('appcreate.ejs',{
+				user : req.user
+			});
+		}
+		else
+		{
+			param = {
+				user : req.user.id,
+				app : req.params.id
+			};
+			db.getSingleUserApplication(param, function(err,data){
+				res.render('app.ejs', {
+					app : data // pass the application data to the page
+				});
+			});
+		}
+	});
+	
+	app.get('/app', isLoggedIn, function (req, res) {
+		res.redirect('/profile');
+	});
+	
+	app.post('/app', isLoggedIn, function(req, res) {
+		var b = new Buffer(bcrypt.genSaltSync(8));
+		var apikey = b.toString('hex')
+		var salt = bcrypt.genSaltSync(10);
+		b = new Buffer(bcrypt.hashSync(apikey,salt));
+		var apisecret = b.toString('hex');
+		b = new Buffer(salt);
+		var apisalt = b.toString('hex');
 		param = {
 			user : req.user.id,
-			app : req.params.id
+			name : req.body.appname,
+			apikey : apikey,
+			apisecret : apisecret,
+			apisalt : apisalt
 		};
-		db.getSingleUserApplication(param, function(err,data){
+		db.createApplication(param, function(err,data){
 			res.render('app.ejs', {
 				app : data // pass the application data to the page
 			});
-		});		
+		});
 	});
 
 	// =====================================
