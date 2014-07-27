@@ -43,12 +43,32 @@ exports.createUser = function (data, callback) {
 	dbconnection.query(sql, callback);
 };
 
+exports.createApplication = function (data, callback) {
+	// Inserting our data and making sure it goes under correct app by FK
+	var sql = 'INSERT INTO Applications SET Name =' + dbconnection.escape(data['name']) +
+			  ',ApiKey = '+ dbconnection.escape(data['apikey']) +
+			  ',ApiSecret = '+ dbconnection.escape(data['apisecret']) +
+			  ',ApiSalt = '+ dbconnection.escape(data['apisalt']);
+	dbconnection.query(sql, function (err, res){
+		var appId = res.insertId;
+		var sql = 'INSERT INTO Users_Has_Applications SET Applications_Id =' + appId +
+			  ',Users_id = '+ data['user'];
+		dbconnection.query(sql, function(err, dat) {
+			param = {
+				user : data['user'],
+				app : appId
+			};
+			db.getSingleUserApplication(param,callback);
+		});
+	});
+};
+
 exports.getUser = function (email, callback) {
 	dbconnection.query('SELECT * FROM Users WHERE email = '+dbconnection.escape(email), callback);
 }
 
 exports.getUserById = function (id, callback) {
-	dbconnection.query('SELECT * FROM Users WHERE id = '+dbconnection.escape(id), callback);
+	dbconnection.query('SELECT id, email, password FROM Users WHERE id = '+dbconnection.escape(id), callback);
 }
 
 exports.getUserApplications = function (id, callback) {
@@ -56,19 +76,25 @@ exports.getUserApplications = function (id, callback) {
 }
 
 exports.getSingleUserApplication = function (data, callback) {
-	dbconnection.query('SELECT Applications.Name, Events.Id, Events.DeviceIdentifier, Events.Description, Events.Logged FROM Events, Applications INNER JOIN Users_has_Applications ON Applications.id = Users_has_Applications.Applications_id WHERE Users_id = '+dbconnection.escape(data.user)+' AND Applications.id ='+ dbconnection.escape(data.app),callback);
-
-}
-
-
-exports.createApplication = function (data, callback) {
-	var sql = 'INSERT INTO Applications SET Name =' + dbconnection.escape(data['name']) +
-			  ',ApiKey = '+ dbconnection.escape(data['apikey']) +
-			  ',ApiSecret = '+ dbconnection.escape(data['apisecret']) +
-			  ',ApiSalt = '+ dbconnection.escape(data['apisalt']);
-	dbconnection.query(sql, function(err,res){
-		var next = 'INSERT INTO Users_has_Applications SET Applications_Id = '+res.insertId+
-		',Users_id = '+ dbconnection.escape(data['userid']);
-			dbconnection.query(sql, callback);
+	// First let's get the application details.
+	// Using INNER JOIN to make sure only the apps that belong to user get shown...
+	// ... because someone might have found out an app id that doesn't belong to them.
+	dbconnection.query('SELECT Name, ApiKey, ApiSecret FROM Applications INNER JOIN Users_has_Applications ON Applications.id = Users_has_Applications.Applications_id WHERE Users_id = '+
+	dbconnection.escape(data.user)+' AND Applications.id ='+
+	dbconnection.escape(data.app),function(err, appdetails) {
+		// In this callback, we fetch the event data of the application. Again making sure
+		// that we are legitimate owners of the app.
+		if (err)
+			return callback(err, null);
+		dbconnection.query('SELECT Events.Id, Events.DeviceIdentifier, Events.Description, Events.Logged FROM Events INNER JOIN Users_has_Applications ON Events.Applications_Id = Users_has_Applications.Applications_id WHERE Users_id = '+
+		dbconnection.escape(data.user)+' AND Events.Applications_Id ='+
+		dbconnection.escape(data.app),function(err,events){
+		// Let's put our data to a pretty object and pass it back.
+			var data = {
+				app : appdetails[0],
+				events : events
+			}
+			callback(err,data);
+		});
 	});
 }
