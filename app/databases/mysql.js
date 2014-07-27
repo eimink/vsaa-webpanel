@@ -55,6 +55,12 @@ exports.getUserApplications = function (id, callback) {
 	dbconnection.query('SELECT * FROM Applications INNER JOIN Users_has_Applications ON Applications.id = Users_has_Applications.Applications_Id WHERE Users_has_Applications.Users_id = '+dbconnection.escape(id), callback);
 }
 
+exports.getSingleUserApplication = function (data, callback) {
+	dbconnection.query('SELECT Applications.Name, Events.Id, Events.DeviceIdentifier, Events.Description, Events.Logged FROM Events, Applications INNER JOIN Users_has_Applications ON Applications.id = Users_has_Applications.Applications_id WHERE Users_id = '+dbconnection.escape(data.user)+' AND Applications.id ='+ dbconnection.escape(data.app),callback);
+
+}
+
+
 exports.createApplication = function (data, callback) {
 	var sql = 'INSERT INTO Applications SET Name =' + dbconnection.escape(data['name']) +
 			  ',ApiKey = '+ dbconnection.escape(data['apikey']) +
