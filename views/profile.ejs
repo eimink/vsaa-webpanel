@@ -27,7 +27,10 @@
 					<p>
 						<strong>id</strong>: <%= user.id %><br>
 						<strong>email</strong>: <%= user.email %><br>
-						<strong>applications</strong>: <%= apps %>
+						<strong>applications</strong>:<br>
+						<% for(var i=0; i<apps.length; i++) { %>
+						<%=apps[i].Name %><br>
+						<% } %>
 					</p>
 
 			</div>
