@@ -66,6 +66,23 @@ module.exports = function(app, passport) {
 			});
 		});		
 	});
+	
+	// =====================================
+	// APPLICATION SECTION =========================
+	// =====================================
+	// we will want this protected so you have to be logged in to visit
+	// we will use route middleware to verify this (the isLoggedIn function)
+	app.get('/app/:id', isLoggedIn, function(req, res) {
+		param = {
+			user : req.user.id,
+			app : req.params.id
+		};
+		db.getSingleUserApplication(param, function(err,data){
+			res.render('app.ejs', {
+				app : data // pass the application data to the page
+			});
+		});		
+	});
 
 	// =====================================
 	// LOGOUT ==============================
