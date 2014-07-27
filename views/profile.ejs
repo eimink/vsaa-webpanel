@@ -29,7 +29,8 @@
 						<strong>email</strong>: <%= user.email %><br>
 						<strong>applications</strong>:<br>
 						<% for(var i=0; i<apps.length; i++) { %>
-						<%=apps[i].Name %><br>
+						<a href='/app/<%=apps[i].Id%>'>
+						<%=apps[i].Name %></a><br>
 						<% } %>
 					</p>
 
