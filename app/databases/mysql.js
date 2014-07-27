@@ -51,3 +51,18 @@ exports.getUserById = function (id, callback) {
 	dbconnection.query('SELECT * FROM Users WHERE id = '+dbconnection.escape(id), callback);
 }
 
+exports.getUserApplications = function (id, callback) {
+	dbconnection.query('SELECT * FROM Applications INNER JOIN Users_has_Applications ON Applications.id = Users_has_Applications.Applications_Id WHERE Users_has_Applications.Users_id = '+dbconnection.escape(id), callback);
+}
+
+exports.createApplication = function (data, callback) {
+	var sql = 'INSERT INTO Applications SET Name =' + dbconnection.escape(data['name']) +
+			  ',ApiKey = '+ dbconnection.escape(data['apikey']) +
+			  ',ApiSecret = '+ dbconnection.escape(data['apisecret']) +
+			  ',ApiSalt = '+ dbconnection.escape(data['apisalt']);
+	dbconnection.query(sql, function(err,res){
+		var next = 'INSERT INTO Users_has_Applications SET Applications_Id = '+res.insertId+
+		',Users_id = '+ dbconnection.escape(data['userid']);
+			dbconnection.query(sql, callback);
+	});
+}
