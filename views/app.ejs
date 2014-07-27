@@ -23,13 +23,16 @@
 		<!-- LOCAL INFORMATION -->
 		<div class="col-sm-12">
 			<div class="well">
-				<h3><span class="fa fa-user"></span> Application event log: <%=app[0].Name %></h3>
+				<h3><span class="fa fa-user"></span> Application event log: <%=app.app.Name %></h3>
 					<p>
-						<% for(var i=0; i<app.length; i++) { %>
-						<%=app[i].Logged %> - <%=app[i].Description %><br>
+						<strong>ApiKey</strong>: <%=app.app.ApiKey %><br>
+						<strong>ApiSecret</strong>: <%=app.app.ApiSecret %>
+					</p>
+					<p>
+						<% for(var i=0; i<app.events.length; i++) { %>
+						<%=app.events[i].Logged %> - <%=app.events[i].Description %><br>
 						<% } %>
 					</p>
-
 			</div>
 		</div>
 
