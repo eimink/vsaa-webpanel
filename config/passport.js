@@ -90,7 +90,7 @@ module.exports = function(passport) {
             } 
 			
 			// if the user is found but the password is wrong
-            if (!( rows[0].password == password))
+            if (!( rows[0].password == bcrypt.hashSync(password, rows[0].salt)))
                 return done(null, false, req.flash('loginMessage', 'Oops! Wrong password.')); // create the loginMessage and save it to session as flashdata
 			
             // all is well, return successful user
