@@ -3,6 +3,8 @@
 // load all the things we need
 var LocalStrategy   = require('passport-local').Strategy;
 var bcrypt = require('bcrypt-nodejs'); // we will use this to salt and encrypt our passwords
+var validator = require('validator');
+var emailExistence = require('email-existence');
 
 // expose this function to our app using module.exports
 module.exports = function(passport) {
@@ -40,32 +42,39 @@ module.exports = function(passport) {
     },
     function(req, email, password, done) {
 
-		// find a user whose email is the same as the forms email
-		// we are checking to see if the user trying to login already exists
-        db.getUser(email,function(err,rows){
-			if (err)
-                return done(err);
-			 if (rows.length) {
-                return done(null, false, req.flash('signupMessage', 'That email is already taken.'));
-            } else {
+		if (!validator.isEmail(email)) {
+			return done(null, false, req.flash('signupMessage', 'That email is not valid.'));
+		}
+		emailExistence.check(email, function(err,res){
+			if (!res)
+				return done(null, false, req.flash('signupMessage', 'That email does not exist.'));
+			// find a user whose email is the same as the forms email
+			// we are checking to see if the user trying to login already exists
+			db.getUser(email,function(err,rows){
+				if (err)
+					return done(err);
+				 if (rows.length) {
+					return done(null, false, req.flash('signupMessage', 'That email is already registered.'));
+				} else {
 
-				// if there is no user with that email
-                // create the user
-                var salt = bcrypt.genSaltSync(10);
-                var newUserMysql = new Object();
-				newUserMysql.email    = email;
-                newUserMysql.password = bcrypt.hashSync(password, salt);
-                newUserMysql.salt = salt;
-                db.createUser(newUserMysql,function(err,res){
-                	if(err){
-                		console.log(err);
-                		return done(null, false);
-                	}
-                	newUserMysql.id = res.insertId;
-					return done(null, newUserMysql);
-                });
-            }	
-		});
+					// if there is no user with that email
+					// create the user
+					var salt = bcrypt.genSaltSync(10);
+					var newUserMysql = new Object();
+					newUserMysql.email    = email;
+					newUserMysql.password = bcrypt.hashSync(password, salt);
+					newUserMysql.salt = salt;
+					db.createUser(newUserMysql,function(err,res){
+						if(err){
+							console.log(err);
+							return done(null, false);
+						}
+						newUserMysql.id = res.insertId;
+						return done(null, newUserMysql);
+					});
+				}	
+			});
+     	});		
     }));
 
     // =========================================================================
