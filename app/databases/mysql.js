@@ -36,7 +36,6 @@ handleDisconnect(dbconnection);
 
 exports.createUser = function (data, callback) {
 	// Inserting our data and making sure it goes under correct app by FK
-	console.log(data);
 	var sql = 'INSERT INTO Users SET email =' + dbconnection.escape(data['email']) +
 			  ',password = '+ dbconnection.escape(data['password']) +
 			  ',salt = '+ dbconnection.escape(data['salt']);
