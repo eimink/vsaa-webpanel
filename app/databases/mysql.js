@@ -47,7 +47,7 @@ exports.createUser = function (data, callback) {
 				',Facebook_id = '+ dbconnection.escape(data.facebook['id']) +
 				',email =' + dbconnection.escape(data['email']) +
 				',Token = '+ dbconnection.escape(data.facebook['token']) +
-				',Name = '+ dbconnection.escape(data['name']);
+				',Name = '+ dbconnection.escape(data.facebook['name']);
 				dbconnection.query(sql,function(err,retval){
 			  		callback(err,res);
 			  	});
@@ -86,7 +86,7 @@ exports.getUserById = function (id, callback) {
 }
 
 exports.getUserByFB = function (id, callback) {
-	dbconnection.query('SELECT id, email, password FROM Users INNER JOIN FB_Users on FB_Users.Users_id = Users.id WHERE FB_USERS.Users_id = '+dbconnection.escape(id), callback);
+	dbconnection.query('SELECT id, Users.email as email, password FROM Users INNER JOIN FB_Users on FB_Users.Users_id = Users.id WHERE FB_USERS.Users_id = '+dbconnection.escape(id), callback);
 }
 
 exports.getUserApplications = function (id, callback) {
