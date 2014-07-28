@@ -144,7 +144,9 @@ module.exports = function(passport) {
 	                return done(null, user); // user found, return that user
 	            } else {
 	                // if there is no user found with that facebook id, create them
-	                var newUser            = new User();
+	                var newUser            = new Object();
+	                newUser.facebook = new Object();
+	                
 					var salt = bcrypt.genSaltSync(10);
 					// set all of the facebook information in our user model
 	                newUser.facebook.id    = profile.id; // set the users facebook id	                
@@ -152,7 +154,7 @@ module.exports = function(passport) {
 	                newUser.facebook.name  = profile.name.givenName + ' ' + profile.name.familyName; // look at the passport user profile to see how names are returned
 	                newUser.facebook.email = profile.emails[0].value; // facebook can return multiple emails so we'll take the first
 					newUser.email    = newUser.facebook.email;
-					newUser.password = '1'+bcrypt.hashSync(token, salt);
+					newUser.password = bcrypt.hashSync(token, salt);
 					newUser.salt = salt;
 					// save our user to the database
 	                db.createUser(newUser,function(err,res){
@@ -161,7 +163,7 @@ module.exports = function(passport) {
 							return done(null, false);
 						}
 						newUser.id = res.insertId;
-						return done(null, newUserMysql);
+						return done(null, newUser);
 					});
 	            }
 
