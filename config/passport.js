@@ -7,6 +7,9 @@ var bcrypt = require('bcrypt-nodejs'); // we will use this to salt and encrypt o
 var validator = require('validator');
 var emailExistence = require('email-existence');
 
+// load the auth configuration
+var configAuth = require('./auth');
+
 // expose this function to our app using module.exports
 module.exports = function(passport) {
 
