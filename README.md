@@ -1,8 +1,10 @@
 # VSAA Webpanel
 
-Heavily work in progress at the moment, only login system is ready.
+Heavily work in progress at the moment, only login system is ready with very primitive application event viewer.
 
 Based on scotch.io tutorial series "Complete Guide to Node Authentication with MongoDB" and MySQL port by manjeshpv.
+
+In order to use Facebook login, you need to create an app in Facebook Developer Center.
 
 ## Instructions
 
