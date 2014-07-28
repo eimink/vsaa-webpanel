@@ -40,7 +40,21 @@ exports.createUser = function (data, callback) {
 	var sql = 'INSERT INTO Users SET email =' + dbconnection.escape(data['email']) +
 			  ',password = '+ dbconnection.escape(data['password']) +
 			  ',salt = '+ dbconnection.escape(data['salt']);
-	dbconnection.query(sql, callback);
+	dbconnection.query(sql, function(err,res) {
+		if (data.facebook)
+		{
+			var sql = 'INSERT INTO FB_Users SET Users_id = '+ dbconnection.escape(res.insertId) +
+				',Facebook_id = '+ dbconnection.escape(data.facebook['id']) +
+				',email =' + dbconnection.escape(data['email']) +
+				',Token = '+ dbconnection.escape(data.facebook['token']) +
+				',Name = '+ dbconnection.escape(data['name']);
+				dbconnection.query(sql,function(err,retval){
+			  		callback(err,res);
+			  	});
+		}
+		else
+			callback(err,res);
+		});
 };
 
 exports.createApplication = function (data, callback) {
@@ -69,6 +83,10 @@ exports.getUser = function (email, callback) {
 
 exports.getUserById = function (id, callback) {
 	dbconnection.query('SELECT id, email, password FROM Users WHERE id = '+dbconnection.escape(id), callback);
+}
+
+exports.getUserByFB = function (id, callback) {
+	dbconnection.query('SELECT id, email, password FROM Users INNER JOIN FB_Users on FB_Users.Users_id = Users.id WHERE FB_USERS.Users_id = '+dbconnection.escape(id), callback);
 }
 
 exports.getUserApplications = function (id, callback) {
